@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Penyusun LKM & Asesmen STEM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0E5257; --teal-deep:#0A3D40; --coral:#F2542D; --cream:#FFF8EE;
+  --ink:#1A2E2C; --yellow:#FFC94A; --line:#D8CDBB;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  box-sizing:border-box;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0;background:var(--teal-deep);color:var(--ink);font-family:'Karla',sans-serif;min-height:100%;}
+.wrap{max-width:760px;margin:0 auto;padding:28px 18px 60px;}
+header{color:var(--cream);margin-bottom:20px;}
+header h1{font-family:'Fredoka',sans-serif;font-size:clamp(24px,5vw,32px);margin:0 0 6px;font-weight:600;}
+header p{margin:0;opacity:.85;font-size:14.5px;line-height:1.5;max-width:60ch;}
+.steps{display:flex;gap:8px;margin:22px 0 18px;}
+.dot{flex:1;height:6px;border-radius:4px;background:rgba(255,255,255,.22);position:relative;overflow:hidden;}
+.dot.done{background:var(--yellow);}
+.dot.active{background:var(--coral);}
+.card{background:var(--cream);border-radius:18px;padding:24px 22px;box-shadow:0 12px 30px rgba(0,0,0,.25);}
+.card h2{font-family:'Fredoka',sans-serif;font-size:20px;margin:0 0 4px;color:var(--teal-deep);}
+.card .sub{font-size:13.5px;color:#5b6d6a;margin:0 0 18px;line-height:1.5;}
+label{display:block;font-weight:700;font-size:13.5px;margin:16px 0 6px;color:var(--teal-deep);}
+label .hint{font-weight:400;color:#6b7d7a;display:block;font-size:12.5px;margin-top:2px;}
+input[type=text],textarea,select{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;
+  font-family:'Karla',sans-serif;font-size:14.5px;background:#fff;color:var(--ink);resize:vertical;
+}
+textarea{min-height:70px;line-height:1.5;}
+input:focus,textarea:focus,select:focus{outline:3px solid #FFC94A55;border-color:var(--coral);}
+.row{display:flex;gap:12px;flex-wrap:wrap;}
+.row > div{flex:1;min-width:180px;}
+.repeat-block{border:1.5px dashed var(--line);border-radius:12px;padding:14px;margin-top:12px;position:relative;}
+.repeat-block .rm{position:absolute;top:8px;right:10px;background:none;border:none;color:#b0463a;font-size:13px;cursor:pointer;font-weight:700;}
+.add-btn{margin-top:10px;background:none;border:2px solid var(--teal);color:var(--teal);border-radius:9px;padding:8px 14px;font-weight:700;font-size:13.5px;cursor:pointer;}
+.add-btn:hover{background:var(--teal);color:#fff;}
+.nav{display:flex;justify-content:space-between;margin-top:24px;gap:10px;}
+.btn{border:none;border-radius:10px;padding:12px 20px;font-weight:700;font-size:14.5px;cursor:pointer;font-family:'Karla',sans-serif;}
+.btn-primary{background:var(--coral);color:#fff;}
+.btn-primary:hover{background:#d9451f;}
+.btn-ghost{background:transparent;color:var(--teal-deep);border:1.5px solid var(--line);}
+.btn-ghost:hover{background:#efe6d5;}
+.badge{display:inline-block;background:var(--yellow);color:var(--teal-deep);font-weight:700;font-size:11.5px;padding:3px 9px;border-radius:20px;margin-bottom:10px;}
+.rubrik-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
+.rubrik-table th,.rubrik-table td{border:1px solid var(--line);padding:6px 8px;text-align:left;}
+.rubrik-table th{background:#f1ead9;color:var(--teal-deep);}
+.rubrik-table input,.rubrik-table textarea{border:none;padding:4px;font-size:13px;min-height:38px;}
+#preview{white-space:pre-wrap;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:18px;font-family:'Karla',monospace;font-size:13.5px;line-height:1.6;max-height:420px;overflow-y:auto;}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.status{font-size:12px;color:#6b7d7a;margin-top:8px;min-height:16px;}
+#printArea{display:none;}
+@media print{
+  body *{visibility:hidden;}
+  #printArea, #printArea *{visibility:visible;}
+  #printArea{display:block;position:absolute;top:0;left:0;width:100%;padding:20px;color:#000;background:#fff;}
+  #printArea h1{font-family:'Fredoka',sans-serif;font-size:22px;margin:0 0 4px;}
+  #printArea h2{font-family:'Fredoka',sans-serif;font-size:16px;margin:18px 0 6px;border-bottom:2px solid #000;padding-bottom:2px;}
+  #printArea p{margin:2px 0 8px;font-size:13px;line-height:1.5;}
+  #printArea table{width:100%;border-collapse:collapse;margin-top:6px;}
+  #printArea th,#printArea td{border:1px solid #000;padding:6px 8px;font-size:12px;text-align:left;vertical-align:top;}
+  #printArea ol{margin:4px 0;padding-left:20px;font-size:13px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Penyusun LKM & Asesmen STEM</h1>
+  <p>Kegiatan terbimbing untuk menyusun Lembar Kerja Murid dan asesmennya, berdasarkan desain pembelajaran STEM kokurikuler yang sudah Anda buat.</p>
+  <button class="btn btn-ghost" id="shareToolBtn" style="margin-top:14px;background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.4);">Bagikan Tools Ini ke Teman</button>
+  <div id="shareBox" style="display:none;margin-top:12px;background:rgba(255,255,255,.12);border-radius:10px;padding:12px;">
+    <label style="color:#fff;font-size:12.5px;font-weight:700;margin:0 0 6px;">Tautan tools ini — pilih otomatis, tekan Ctrl+C / Cmd+C untuk menyalin:</label>
+    <input type="text" id="shareLinkInput" readonly style="width:100%;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;padding:9px 10px;font-size:13.5px;background:#fff;color:#1A2E2C;">
+  </div>
+</header>
+
+<div class="steps" id="steps"></div>
+
+<div class="card" id="cardArea"></div>
+
+<div class="nav">
+  <button class="btn btn-ghost" id="prevBtn">Kembali</button>
+  <button class="btn btn-primary" id="nextBtn">Lanjut</button>
+</div>
+<div class="nav" style="margin-top:10px;justify-content:flex-start;">
+  <button class="btn btn-ghost" id="resetBtn" style="border-color:#c0392b55;color:#c0392b;">Kembali ke Awal</button>
+</div>
+<div class="status" id="status"></div>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+const KEY='lkm_asesmen_draft_v1';
+let state = {
+  step:0,
+  dasar:{topik:'',jenjang:'',mapel:'',tujuan:'',masalah:''},
+  lkm:{judul:'',alat:'',tahapan:[{nama:'Ask (Bertanya)',aktivitas:''},{nama:'Imagine (Membayangkan)',aktivitas:''},{nama:'Plan (Merencanakan)',aktivitas:''},{nama:'Create (Membuat)',aktivitas:''},{nama:'Test & Improve (Uji & Perbaiki)',aktivitas:''}],refleksi:''},
+  asesmen:{jenis:['Formatif'],kriteria:[{aspek:'',indikator4:'',indikator2:''}]}
+};
+
+function load(){
+  try{ const raw=localStorage.getItem(KEY); if(raw){ const parsed=JSON.parse(raw); state=Object.assign(state,parsed);} }catch(e){ console.warn('load fail',e); }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); document.getElementById('status').textContent='Draf tersimpan otomatis di perangkat ini.'; }
+  catch(e){ document.getElementById('status').textContent='Gagal menyimpan draf secara lokal.'; }
+}
+
+const STEPS=['Info Dasar','Susun LKM','Susun Asesmen','Pratinjau & Unduh'];
+
+function renderSteps(){
+  const el=document.getElementById('steps'); el.innerHTML='';
+  STEPS.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i<state.step?' done':'')+(i===state.step?' active':'');
+    el.appendChild(d);
+  });
+}
+
+function renderCard(){
+  const c=document.getElementById('cardArea');
+  if(state.step===0){
+    c.innerHTML=`
+    <span class="badge">Langkah 1 dari 4</span>
+    <h2>Info Dasar</h2>
+    <p class="sub">Ambil dari desain pembelajaran yang sudah Anda susun di Modul 2 & 3.</p>
+    <label>Mata pelajaran / tema STEM<textarea id="mapel" placeholder="Contoh: IPA - Energi Terbarukan">${state.dasar.mapel}</textarea></label>
+    <div class="row">
+      <div><label>Jenjang & kelas<input id="jenjang" type="text" placeholder="Contoh: SMA kelas XI" value="${state.dasar.jenjang}"></label></div>
+      <div><label>Topik / proyek<input id="topik" type="text" placeholder="Contoh: Rancang panel surya mini" value="${state.dasar.topik}"></label></div>
+    </div>
+    <label>Masalah dunia nyata yang diangkat<textarea id="masalah" placeholder="Masalah kontekstual yang mendasari proyek">${state.dasar.masalah}</textarea></label>
+    <label>Tujuan pembelajaran<textarea id="tujuan" placeholder="Sesuai desain pembelajaran Modul 2/3">${state.dasar.tujuan}</textarea></label>
+    `;
+    ['mapel','jenjang','topik','masalah','tujuan'].forEach(id=>{
+      document.getElementById(id).addEventListener('input',e=>{state.dasar[id]=e.target.value; save();});
+    });
+  }
+  else if(state.step===1){
+    let tahapanHtml=state.lkm.tahapan.map((t,i)=>`
+      <div class="repeat-block">
+        ${state.lkm.tahapan.length>1?`<button class="rm" data-i="${i}" data-type="tahap">Hapus</button>`:''}
+        <label>Nama tahapan<input type="text" data-field="nama" data-i="${i}" class="tahap-input" value="${t.nama}"></label>
+        <label>Aktivitas murid pada tahapan ini<textarea data-field="aktivitas" data-i="${i}" class="tahap-input">${t.aktivitas}</textarea></label>
+      </div>`).join('');
+    c.innerHTML=`
+    <span class="badge">Langkah 2 dari 4</span>
+    <h2>Susun LKM</h2>
+    <p class="sub">Lembar Kerja Murid disusun mengikuti alur STEM (bisa Anda ubah nama tahapannya sesuai model yang dipakai).</p>
+    <label>Judul LKM<input id="judul" type="text" placeholder="Contoh: LKM - Membangun Panel Surya Mini" value="${state.lkm.judul}"></label>
+    <label>Alat & bahan<textarea id="alat" placeholder="Daftar alat dan bahan yang dibutuhkan murid">${state.lkm.alat}</textarea></label>
+    <label>Tahapan kerja murid</label>
+    ${tahapanHtml}
+    <button class="add-btn" id="addTahap">+ Tambah tahapan</button>
+    <label>Pertanyaan refleksi untuk murid<textarea id="refleksi" placeholder="Contoh: Apa tantangan terbesar saat membuat solusi ini?">${state.lkm.refleksi}</textarea></label>
+    `;
+    document.getElementById('judul').addEventListener('input',e=>{state.lkm.judul=e.target.value; save();});
+    document.getElementById('alat').addEventListener('input',e=>{state.lkm.alat=e.target.value; save();});
+    document.getElementById('refleksi').addEventListener('input',e=>{state.lkm.refleksi=e.target.value; save();});
+    document.querySelectorAll('.tahap-input').forEach(el=>{
+      el.addEventListener('input',e=>{
+        const i=+e.target.dataset.i, f=e.target.dataset.field;
+        state.lkm.tahapan[i][f]=e.target.value; save();
+      });
+    });
+    document.querySelectorAll('[data-type="tahap"]').forEach(btn=>{
+      btn.addEventListener('click',e=>{
+        state.lkm.tahapan.splice(+e.target.dataset.i,1); save(); renderCard();
+      });
+    });
+    document.getElementById('addTahap').addEventListener('click',()=>{
+      state.lkm.tahapan.push({nama:'',aktivitas:''}); save(); renderCard();
+    });
+  }
+  else if(state.step===2){
+    const jenisOpts=['Diagnostik','Formatif','Sumatif','Portofolio','Presentasi/Unjuk Kerja'];
+    let jenisHtml=jenisOpts.map(j=>`
+      <label style="display:inline-flex;align-items:center;gap:6px;font-weight:400;margin-right:14px;">
+        <input type="checkbox" data-jenis="${j}" ${state.asesmen.jenis.includes(j)?'checked':''}> ${j}
+      </label>`).join('');
+    let kriteriaRows=state.asesmen.kriteria.map((k,i)=>`
+      <tr>
+        <td><textarea data-field="aspek" data-i="${i}" class="krit-input" placeholder="Aspek yang dinilai">${k.aspek}</textarea></td>
+        <td><textarea data-field="indikator4" data-i="${i}" class="krit-input" placeholder="Indikator capaian tinggi">${k.indikator4}</textarea></td>
+        <td><textarea data-field="indikator2" data-i="${i}" class="krit-input" placeholder="Indikator perlu bimbingan">${k.indikator2}</textarea></td>
+        <td>${state.asesmen.kriteria.length>1?`<button class="rm" style="position:static" data-i="${i}" data-type="krit">Hapus</button>`:''}</td>
+      </tr>`).join('');
+    c.innerHTML=`
+    <span class="badge">Langkah 3 dari 4</span>
+    <h2>Susun Asesmen</h2>
+    <p class="sub">Pilih jenis asesmen dan susun kriteria penilaian sesuai konsep asesmen STEM yang sudah dipelajari.</p>
+    <label>Jenis asesmen yang digunakan</label>
+    <div style="margin-bottom:6px;">${jenisHtml}</div>
+    <label>Kriteria & rubrik penilaian</label>
+    <table class="rubrik-table">
+      <tr><th>Aspek</th><th>Capaian Tinggi</th><th>Perlu Bimbingan</th><th></th></tr>
+      ${kriteriaRows}
+    </table>
+    <button class="add-btn" id="addKrit">+ Tambah aspek</button>
+    `;
+    document.querySelectorAll('[data-jenis]').forEach(cb=>{
+      cb.addEventListener('change',e=>{
+        const j=e.target.dataset.jenis;
+        if(e.target.checked){ if(!state.asesmen.jenis.includes(j)) state.asesmen.jenis.push(j); }
+        else{ state.asesmen.jenis=state.asesmen.jenis.filter(x=>x!==j); }
+        save();
+      });
+    });
+    document.querySelectorAll('.krit-input').forEach(el=>{
+      el.addEventListener('input',e=>{
+        const i=+e.target.dataset.i, f=e.target.dataset.field;
+        state.asesmen.kriteria[i][f]=e.target.value; save();
+      });
+    });
+    document.querySelectorAll('[data-type="krit"]').forEach(btn=>{
+      btn.addEventListener('click',e=>{ state.asesmen.kriteria.splice(+e.target.dataset.i,1); save(); renderCard(); });
+    });
+    document.getElementById('addKrit').addEventListener('click',()=>{
+      state.asesmen.kriteria.push({aspek:'',indikator4:'',indikator2:''}); save(); renderCard();
+    });
+  }
+  else if(state.step===3){
+    c.innerHTML=`
+    <span class="badge">Langkah 4 dari 4</span>
+    <h2>Pratinjau & Unduh</h2>
+    <p class="sub">Periksa hasil susunan LKM dan asesmen Anda. Salin atau unduh sebagai file teks untuk diunggah ke LMS.</p>
+    <div id="preview"></div>
+    <div class="actions">
+      <button class="btn btn-primary" id="copyBtn">Salin teks</button>
+      <button class="btn btn-ghost" id="downloadBtn">Unduh sebagai .txt</button>
+      <button class="btn btn-ghost" id="printBtn">Cetak / Simpan PDF</button>
+    </div>
+    `;
+    document.getElementById('preview').textContent=buildText();
+    document.getElementById('copyBtn').addEventListener('click',()=>{
+      navigator.clipboard.writeText(buildText()).then(()=>{
+        document.getElementById('status').textContent='Teks disalin ke clipboard.';
+      }).catch(()=>{ document.getElementById('status').textContent='Gagal menyalin, silakan salin manual dari kotak pratinjau.'; });
+    });
+    document.getElementById('downloadBtn').addEventListener('click',()=>{
+      const blob=new Blob([buildText()],{type:'text/plain;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=(state.lkm.judul||'LKM-Asesmen').replace(/[^a-z0-9]+/gi,'_')+'.txt';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    });
+    document.getElementById('printBtn').addEventListener('click',()=>{
+      document.getElementById('printArea').innerHTML=buildPrintHTML();
+      window.print();
+    });
+  }
+  document.getElementById('prevBtn').style.visibility = state.step===0 ? 'hidden' : 'visible';
+  document.getElementById('nextBtn').textContent = state.step===3 ? 'Selesai' : 'Lanjut';
+}
+
+function buildText(){
+  let t='';
+  t+='=== INFO DASAR ===\n';
+  t+=`Mata pelajaran/tema: ${state.dasar.mapel}\n`;
+  t+=`Jenjang/kelas: ${state.dasar.jenjang}\n`;
+  t+=`Topik/proyek: ${state.dasar.topik}\n`;
+  t+=`Masalah dunia nyata: ${state.dasar.masalah}\n`;
+  t+=`Tujuan pembelajaran: ${state.dasar.tujuan}\n\n`;
+  t+='=== LEMBAR KERJA MURID (LKM) ===\n';
+  t+=`Judul: ${state.lkm.judul}\n`;
+  t+=`Alat & bahan: ${state.lkm.alat}\n`;
+  t+='Tahapan kerja:\n';
+  state.lkm.tahapan.forEach((tp,i)=>{ t+=`  ${i+1}. ${tp.nama}: ${tp.aktivitas}\n`; });
+  t+=`Refleksi murid: ${state.lkm.refleksi}\n\n`;
+  t+='=== ASESMEN ===\n';
+  t+=`Jenis asesmen: ${state.asesmen.jenis.join(', ')}\n`;
+  t+='Rubrik penilaian:\n';
+  state.asesmen.kriteria.forEach((k,i)=>{
+    t+=`  ${i+1}. Aspek: ${k.aspek}\n     Capaian tinggi: ${k.indikator4}\n     Perlu bimbingan: ${k.indikator2}\n`;
+  });
+  return t;
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function buildPrintHTML(){
+  let h='';
+  h+=`<h1>${esc(state.lkm.judul)||'LKM & Asesmen STEM'}</h1>`;
+  h+=`<p><strong>Mata pelajaran/tema:</strong> ${esc(state.dasar.mapel)}<br>`;
+  h+=`<strong>Jenjang/kelas:</strong> ${esc(state.dasar.jenjang)} &nbsp; <strong>Topik/proyek:</strong> ${esc(state.dasar.topik)}</p>`;
+  h+=`<h2>Masalah & Tujuan</h2>`;
+  h+=`<p><strong>Masalah dunia nyata:</strong> ${esc(state.dasar.masalah)}</p>`;
+  h+=`<p><strong>Tujuan pembelajaran:</strong> ${esc(state.dasar.tujuan)}</p>`;
+  h+=`<h2>Lembar Kerja Murid (LKM)</h2>`;
+  h+=`<p><strong>Alat & bahan:</strong> ${esc(state.lkm.alat)}</p>`;
+  h+=`<p><strong>Tahapan kerja murid:</strong></p><ol>`;
+  state.lkm.tahapan.forEach(tp=>{ h+=`<li><strong>${esc(tp.nama)}:</strong> ${esc(tp.aktivitas)}</li>`; });
+  h+=`</ol><p><strong>Refleksi murid:</strong> ${esc(state.lkm.refleksi)}</p>`;
+  h+=`<h2>Asesmen</h2>`;
+  h+=`<p><strong>Jenis asesmen:</strong> ${esc(state.asesmen.jenis.join(', '))}</p>`;
+  h+=`<table><tr><th>Aspek</th><th>Capaian Tinggi</th><th>Perlu Bimbingan</th></tr>`;
+  state.asesmen.kriteria.forEach(k=>{
+    h+=`<tr><td>${esc(k.aspek)}</td><td>${esc(k.indikator4)}</td><td>${esc(k.indikator2)}</td></tr>`;
+  });
+  h+=`</table>`;
+  return h;
+}
+
+document.getElementById('shareToolBtn').addEventListener('click',async()=>{
+  const url=window.location.href;
+  const box=document.getElementById('shareBox');
+  const input=document.getElementById('shareLinkInput');
+  input.value=url;
+  box.style.display='block';
+  input.focus();
+  input.select();
+  input.setSelectionRange(0,99999);
+  document.getElementById('status').textContent='Tautan sudah dipilih di kotak biru di atas — tekan Ctrl+C (atau Cmd+C) lalu tempel ke WhatsApp/email.';
+  try{
+    if(navigator.share){ await navigator.share({title:'Penyusun LKM & Asesmen STEM',text:'Coba tools ini untuk menyusun LKM dan Asesmen STEM:',url}); return; }
+  }catch(e){ /* biarkan, kotak tautan tetap tampil sebagai cara utama */ }
+  try{ await navigator.clipboard.writeText(url); document.getElementById('status').textContent='Tautan otomatis tersalin ke clipboard. Tempel ke WhatsApp/email untuk kirim ke teman.'; }
+  catch(e){ /* kotak tautan di atas tetap jadi cara cadangan yang selalu berfungsi */ }
+});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  if(confirm('Semua isian akan dihapus dan Anda kembali ke Langkah 1. Lanjutkan?')){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    state = {
+      step:0,
+      dasar:{topik:'',jenjang:'',mapel:'',tujuan:'',masalah:''},
+      lkm:{judul:'',alat:'',tahapan:[{nama:'Ask (Bertanya)',aktivitas:''},{nama:'Imagine (Membayangkan)',aktivitas:''},{nama:'Plan (Merencanakan)',aktivitas:''},{nama:'Create (Membuat)',aktivitas:''},{nama:'Test & Improve (Uji & Perbaiki)',aktivitas:''}],refleksi:''},
+      asesmen:{jenis:['Formatif'],kriteria:[{aspek:'',indikator4:'',indikator2:''}]}
+    };
+    renderSteps(); renderCard();
+    document.getElementById('status').textContent='Draf telah dikosongkan. Mulai dari Langkah 1.';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+});
+
+document.getElementById('prevBtn').addEventListener('click',()=>{
+  if(state.step>0){ state.step--; save(); renderSteps(); renderCard(); window.scrollTo({top:0,behavior:'smooth'}); }
+});
+document.getElementById('nextBtn').addEventListener('click',()=>{
+  if(state.step<3){ state.step++; save(); renderSteps(); renderCard(); window.scrollTo({top:0,behavior:'smooth'}); }
+  else{ document.getElementById('status').textContent='Selesai! Unggah hasil unduhan ke tautan pengumpulan tugas di LMS.'; }
+});
+
+load(); renderSteps(); renderCard();
+</script>
+</body>
+</html>
